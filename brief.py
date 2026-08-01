@@ -4,17 +4,25 @@ from config import now, data_extenso
 from sources.finance import coletar_financeiro
 from sources.frei_gilson import meditacao_do_dia
 from sources.spotify import spotify_do_dia
+from sources.gmail import pendencias_do_dia
+from sources.google_calendar import eventos_do_dia
 from workout import treino_do_dia, mapa_muscular
 from render import pagina_html, telegram_html
 from notify_telegram import enviar
 
 
-def headline(fin, tem_agenda):
+def headline(tem_agenda):
     if not tem_agenda:
         return ("Agenda livre hoje, Daniel — dia aberto pra tocar no seu ritmo.",
                 "dia aberto: agenda livre pra tocar no seu ritmo.")
     return ("Alguns marcos no dia, Daniel — o resto é seu.",
             "alguns compromissos no dia; o resto é seu.")
+
+
+def _fmt_hora(iso):
+    if not iso or "T" not in iso:
+        return "dia todo"
+    return iso[11:16]
 
 
 def main():
@@ -39,6 +47,18 @@ def main():
         traceback.print_exc()
         sp = None
 
+    try:
+        eventos = eventos_do_dia()
+    except Exception:
+        traceback.print_exc()
+        eventos = []
+
+    try:
+        emails = pendencias_do_dia()
+    except Exception:
+        traceback.print_exc()
+        emails = []
+
     treino = treino_do_dia(d)
     mapa = mapa_muscular(treino["alvos"])
 
@@ -49,8 +69,16 @@ def main():
             f'<a href="{os.environ.get("FINANCE_URL", "#")}">Fatura {al["banco"]} fecha {quando}</a> — "{al["texto"]}".'))
         precisa_txt.append(f'{len(precisa_txt) + 1}. <a href="{os.environ.get("FINANCE_URL", "#")}">'
                            f'Fatura {al["banco"]} fecha {quando}</a> — "{al["texto"]}".')
+    for ev in eventos:
+        precisa_html.append((len(precisa_html) + 1,
+            f'{_fmt_hora(ev["inicio"])} — {ev["titulo"]} ({ev["conta"]})'))
+        precisa_txt.append(f'{len(precisa_txt) + 1}. {_fmt_hora(ev["inicio"])} — {ev["titulo"]} ({ev["conta"]})')
+    for em in emails:
+        precisa_html.append((len(precisa_html) + 1,
+            f'E-mail de {em["de"]} ({em["conta"]}) — "{em["assunto"]}"'))
+        precisa_txt.append(f'{len(precisa_txt) + 1}. E-mail de {em["de"]} ({em["conta"]}) — "{em["assunto"]}"')
 
-    hl, hl_curta = headline(fin, tem_agenda=False)
+    hl, hl_curta = headline(tem_agenda=bool(eventos))
 
     ctx = {
         "headline": hl, "headline_curta": hl_curta,

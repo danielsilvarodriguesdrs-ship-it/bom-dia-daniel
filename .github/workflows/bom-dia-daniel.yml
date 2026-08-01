@@ -24,6 +24,10 @@ jobs:
       SPOTIFY_CLIENT_ID:     ${{ secrets.SPOTIFY_CLIENT_ID }}
       SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
       SPOTIFY_REFRESH_TOKEN: ${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+      GOOGLE_CLIENT_ID:     ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GOOGLE_REFRESH_TOKEN_PESSOAL:   ${{ secrets.GOOGLE_REFRESH_TOKEN_PESSOAL }}
+      GOOGLE_REFRESH_TOKEN_CAMPOFORT: ${{ secrets.GOOGLE_REFRESH_TOKEN_CAMPOFORT }}
     steps:
       - uses: actions/checkout@v4
 
