@@ -2,7 +2,7 @@ name: bom-dia-daniel
 
 on:
   schedule:
-    - cron: "0 6 * * *"        # 06:00 UTC = 03:00 America/Sao_Paulo (folga p/ atraso do GH)
+    - cron: "30 8 * * *"       # 08:30 UTC = 05:30 America/Sao_Paulo
   workflow_dispatch:
 
 permissions:
