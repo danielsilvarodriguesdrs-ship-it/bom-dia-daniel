@@ -74,8 +74,8 @@ footer{{margin-top:48px;padding-bottom:36px;font-size:12px;color:var(--soft)}}
 
 
 def telegram_html(ctx):
-    """Versão compacta (<b>,<i>,<a>). & vira &amp; nos links."""
-    he = lambda u: u.replace("&", "&amp;")
+    """Versão compacta (<b>,<i>,<a>)."""
+    he = A
     linhas = []
     linhas.append("🌱 <b>Bom dia, Daniel!</b>")
     linhas.append(E(data_extenso()) + " — " + E(ctx["headline_curta"]))
@@ -99,4 +99,21 @@ def telegram_html(ctx):
         if sp.get("musica"):
             linhas += ["", "⏰ <b>Pra levantar o astral</b>",
                        f'<a href="{he(sp["musica"]["url"])}">♪ {E(sp["musica"]["titulo"])}</a>']
-    return "\n".join(linhas)[:4096]
+    return _cortar_seguro(linhas)
+
+
+def _cortar_seguro(linhas, limite=4096):
+    """Telegram recusa mensagem acima de 4096 caracteres. Corta por linha inteira
+    (nunca no meio de uma tag), pra não gerar HTML quebrado."""
+    texto = "\n".join(linhas)
+    if len(texto) <= limite:
+        return texto
+    aviso = "\n\n… (resumo truncado, confira a página pro conteúdo completo)"
+    mantidas = []
+    total = len(aviso)
+    for linha in linhas:
+        if total + len(linha) + 1 > limite:
+            break
+        mantidas.append(linha)
+        total += len(linha) + 1
+    return "\n".join(mantidas) + aviso
