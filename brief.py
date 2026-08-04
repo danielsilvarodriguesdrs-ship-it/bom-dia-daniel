@@ -1,6 +1,10 @@
 import os
+import html
 import traceback
 from config import now, data_extenso
+
+E = lambda s: html.escape(str(s))
+A = lambda u: html.escape(str(u), quote=True)
 from sources.finance import coletar_financeiro
 from sources.frei_gilson import meditacao_do_dia
 from sources.spotify import spotify_do_dia
@@ -66,17 +70,17 @@ def main():
     for al in fin.get("alertas", []):
         quando = "amanhã" if al["dias"] == 1 else f'em {al["dias"]} dias'
         precisa_html.append((len(precisa_html) + 1,
-            f'<a href="{os.environ.get("FINANCE_URL", "#")}">Fatura {al["banco"]} fecha {quando}</a> — "{al["texto"]}".'))
-        precisa_txt.append(f'{len(precisa_txt) + 1}. <a href="{os.environ.get("FINANCE_URL", "#")}">'
-                           f'Fatura {al["banco"]} fecha {quando}</a> — "{al["texto"]}".')
+            f'<a href="{A(os.environ.get("FINANCE_URL", "#"))}">Fatura {E(al["banco"])} fecha {quando}</a> — "{E(al["texto"])}".'))
+        precisa_txt.append(f'{len(precisa_txt) + 1}. <a href="{A(os.environ.get("FINANCE_URL", "#"))}">'
+                           f'Fatura {E(al["banco"])} fecha {quando}</a> — "{E(al["texto"])}".')
     for ev in eventos:
         precisa_html.append((len(precisa_html) + 1,
-            f'{_fmt_hora(ev["inicio"])} — {ev["titulo"]} ({ev["conta"]})'))
-        precisa_txt.append(f'{len(precisa_txt) + 1}. {_fmt_hora(ev["inicio"])} — {ev["titulo"]} ({ev["conta"]})')
+            f'{_fmt_hora(ev["inicio"])} — {E(ev["titulo"])} ({E(ev["conta"])})'))
+        precisa_txt.append(f'{len(precisa_txt) + 1}. {_fmt_hora(ev["inicio"])} — {E(ev["titulo"])} ({E(ev["conta"])})')
     for em in emails:
         precisa_html.append((len(precisa_html) + 1,
-            f'E-mail de {em["de"]} ({em["conta"]}) — "{em["assunto"]}"'))
-        precisa_txt.append(f'{len(precisa_txt) + 1}. E-mail de {em["de"]} ({em["conta"]}) — "{em["assunto"]}"')
+            f'E-mail de {E(em["de"])} ({E(em["conta"])}) — "{E(em["assunto"])}"'))
+        precisa_txt.append(f'{len(precisa_txt) + 1}. E-mail de {E(em["de"])} ({E(em["conta"])}) — "{E(em["assunto"])}"')
 
     hl, hl_curta = headline(tem_agenda=bool(eventos))
 
