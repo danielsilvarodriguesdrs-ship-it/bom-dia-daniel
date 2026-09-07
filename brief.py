@@ -11,6 +11,7 @@ from sources.spotify import spotify_do_dia
 from sources.gmail import pendencias_do_dia
 from sources.google_calendar import eventos_do_dia
 from workout import treino_do_dia, mapa_muscular
+from diet import dieta_do_dia
 from render import pagina_html, telegram_html
 from notify_telegram import enviar
 
@@ -65,6 +66,7 @@ def main():
 
     treino = treino_do_dia(d)
     mapa = mapa_muscular(treino["alvos"])
+    dieta = dieta_do_dia(d)
 
     precisa_html, precisa_txt = [], []
     for al in fin.get("alertas", []):
@@ -87,7 +89,7 @@ def main():
     ctx = {
         "headline": hl, "headline_curta": hl_curta,
         "precisa": precisa_html, "precisa_txt": precisa_txt,
-        "meditacao": med, "treino": treino, "mapa": mapa, "spotify": sp,
+        "meditacao": med, "treino": treino, "mapa": mapa, "spotify": sp, "dieta": dieta,
     }
 
     os.makedirs("docs", exist_ok=True)

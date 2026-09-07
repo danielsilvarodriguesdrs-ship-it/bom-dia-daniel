@@ -20,8 +20,23 @@ def _pasto():
 </svg>'''
 
 
+_REFEICOES = [
+    ("cafe", "Café da manhã"), ("lanche", "Lanche"), ("almoco", "Almoço"),
+    ("pre_treino", "Pré-treino"), ("pos_treino", "Pós-treino"),
+    ("jantar", "Jantar"), ("ceia", "Ceia"),
+]
+
+
+def _refeicoes_html(dieta):
+    blocos = ""
+    for chave, nome in _REFEICOES:
+        itens = "".join(f'<li>{E(it)}</li>' for it in dieta[chave])
+        blocos += f'<div class="meal"><div class="meal-name">{E(nome)}</div><ul>{itens}</ul></div>'
+    return blocos
+
+
 def pagina_html(ctx):
-    """ctx: dict com headline, precisa[], meditacao, treino, mapa, spotify."""
+    """ctx: dict com headline, precisa[], meditacao, treino, mapa, spotify, dieta."""
     ex_cards = ""
     for i, (nome, sr, mus, icone) in enumerate(ctx["treino"]["ex"], 1):
         ex_cards += (f'<div class="ex"><div class="ex-svg">{icone()}</div>'
@@ -54,6 +69,11 @@ box-shadow:0 1px 2px rgba(46,44,39,.04);transition:box-shadow .15s}}
 .ex-svg{{height:104px;display:flex;align-items:center;justify-content:center}}
 .ex-name{{font-size:13.5px;font-weight:650;margin-top:6px}} .ex-name span{{color:var(--clay);font-weight:700}}
 .ex-sr{{font-size:13px}} .ex-mus{{font-size:11.5px;color:var(--soft)}}
+.meals{{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:20px}}
+.meal{{border:1px solid var(--hair);border-radius:14px;padding:14px 16px;background:#fff;
+box-shadow:0 1px 2px rgba(46,44,39,.04)}}
+.meal-name{{font-size:13.5px;font-weight:700;color:var(--clay)}}
+.meal ul{{margin:8px 0 0 18px;padding:0}} .meal li{{font-size:13.5px;color:var(--soft);margin-top:4px}}
 a{{color:var(--ink);border-bottom:1px solid var(--clay);text-decoration:none;font-weight:600}}
 footer{{margin-top:48px;padding-bottom:36px;font-size:12px;color:var(--soft)}}
 @media(max-width:640px){{.headline{{font-size:32px}}}}</style></head><body>
@@ -69,6 +89,8 @@ footer{{margin-top:48px;padding-bottom:36px;font-size:12px;color:var(--soft)}}
 <div class="item"><a href="{A(ctx["meditacao"]["url"])}">{E(ctx["meditacao"]["titulo"])}</a></div></div>
 <div class="sec"><div class="h">Treino do dia — {E(ctx["treino"]["nome"])}</div>
 {ctx["mapa"]}<div class="grid">{ex_cards}</div></div>
+<div class="sec"><div class="h">Alimentação do dia</div>
+<div class="meals">{_refeicoes_html(ctx["dieta"])}</div></div>
 <footer>Atualizado automaticamente todo dia às 03h00 (America/Sao_Paulo).</footer>
 </div></body></html>'''
 
@@ -91,6 +113,10 @@ def telegram_html(ctx):
     linhas.append("")
     linhas.append(f'🏋️ <b>Treino — {E(ctx["treino"]["nome"])}</b>')
     linhas.append(" · ".join(f'{E(n)} {E(sr)}' for n, sr, _, _ in ctx["treino"]["ex"]))
+    linhas.append("")
+    linhas.append("🍽️ <b>Alimentação de hoje</b>")
+    for chave, nome in _REFEICOES:
+        linhas.append(f'<b>{E(nome)}:</b> ' + " + ".join(E(it) for it in ctx["dieta"][chave]))
     if ctx.get("spotify"):
         sp = ctx["spotify"]
         if sp.get("podcast"):
