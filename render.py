@@ -96,9 +96,6 @@ def telegram_html(ctx):
         if sp.get("podcast"):
             linhas += ["", "🎧 <b>Podcast do dia</b>",
                        f'<a href="{he(sp["podcast"]["url"])}">{E(sp["podcast"]["titulo"])}</a> · ~{sp["podcast"]["min"]} min']
-        if sp.get("musica"):
-            linhas += ["", "⏰ <b>Pra levantar o astral</b>",
-                       f'<a href="{he(sp["musica"]["url"])}">♪ {E(sp["musica"]["titulo"])}</a>']
     return _cortar_seguro(linhas)
 
 

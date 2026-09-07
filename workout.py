@@ -188,46 +188,82 @@ def ic_stretch():
                 "Alongamento")
 
 
+def ic_rdl():
+    return _svg(f'''
+<circle cx="60" cy="24" r="8" fill="none" stroke="{INK}" stroke-width="2.4"/>
+<path d="M60 32 L60 60 L90 96" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round"/>
+<line x1="70" y1="88" x2="110" y2="104" stroke="{CLAY}" stroke-width="5" stroke-linecap="round"/>
+<circle cx="70" cy="88" r="6" fill="none" stroke="{INK}" stroke-width="2.2"/>
+<circle cx="110" cy="104" r="6" fill="none" stroke="{INK}" stroke-width="2.2"/>
+<line x1="60" y1="60" x2="52" y2="104" stroke="{INK}" stroke-width="2.6"/>''',
+                "Levantamento terra romeno")
+
+
+def ic_reverse_fly():
+    return _svg(f'''
+<circle cx="75" cy="26" r="8" fill="none" stroke="{INK}" stroke-width="2.4"/>
+<line x1="75" y1="34" x2="75" y2="82" stroke="{INK}" stroke-width="2.6"/>
+<path d="M75 50 Q52 46 42 34" fill="none" stroke="{CLAY}" stroke-width="5" stroke-linecap="round"/>
+<path d="M75 50 Q98 46 108 34" fill="none" stroke="{CLAY}" stroke-width="5" stroke-linecap="round"/>
+<line x1="38" y1="28" x2="46" y2="40" stroke="{INK}" stroke-width="3.4" stroke-linecap="round"/>
+<line x1="112" y1="28" x2="104" y2="40" stroke="{INK}" stroke-width="3.4" stroke-linecap="round"/>''',
+                "Crucifixo inverso")
+
+
+def ic_glute():
+    return _svg(f'''
+<line x1="24" y1="100" x2="126" y2="100" stroke="{GREY}" stroke-width="2"/>
+<circle cx="40" cy="88" r="8" fill="none" stroke="{INK}" stroke-width="2.4"/>
+<path d="M40 96 L40 100 L70 100" fill="none" stroke="{INK}" stroke-width="2.6"/>
+<path d="M70 100 Q95 100 95 78" fill="none" stroke="{CLAY}" stroke-width="5.5" stroke-linecap="round"/>
+<line x1="40" y1="100" x2="40" y2="118" stroke="{INK}" stroke-width="2.6"/>''',
+                "Elevação de quadril / glúteos")
+
+
+# Divisão semanal do Protocolo Base (hipertrofia, força e composição corporal):
+# Treinos A-E intercalados conforme a semana, com quinta e domingo como descanso.
 PLANOS = {
-    0: {"nome": "Peito & Tríceps", "alvos": ["chest", "triceps", "delts"], "dur": "~55 min",
-        "ex": [("Supino reto", "4x8-10", "Peitoral", ic_bench),
-               ("Supino inclinado c/ halteres", "3x10-12", "Peitoral superior", ic_bench),
-               ("Crucifixo", "3x12", "Peitoral (abertura)", ic_fly),
-               ("Tríceps na polia", "4x10-12", "Tríceps", ic_pushdown),
-               ("Tríceps testa", "3x10-12", "Tríceps (cabeça longa)", ic_pushdown)]},
-    1: {"nome": "Costas & Bíceps", "alvos": ["lats", "biceps", "forearm"], "dur": "~55 min",
-        "ex": [("Barra fixa ou puxada", "4x8-10", "Dorsais", ic_pulldown),
-               ("Remada curvada", "4x10", "Costas (meio)", ic_row),
-               ("Remada baixa", "3x12", "Costas", ic_row),
-               ("Rosca direta", "4x10", "Bíceps", ic_curl),
-               ("Rosca martelo", "3x12", "Antebraço", ic_hammer)]},
-    2: {"nome": "Pernas", "alvos": ["quads", "glutes", "hamstrings", "calves"], "dur": "~55 min",
-        "ex": [("Agachamento livre", "4x8-10", "Quadríceps & glúteos", ic_squat),
-               ("Leg press 45°", "4x10-12", "Quadríceps & glúteos", ic_legpress),
-               ("Cadeira extensora", "3x12-15", "Quadríceps (pico)", ic_legext),
-               ("Mesa flexora", "4x10-12", "Isquiotibiais", ic_legcurl),
-               ("Panturrilha em pé", "4x15-20", "Gastrocnêmio & sóleo", ic_calf)]},
-    3: {"nome": "Ombros", "alvos": ["delts", "traps"], "dur": "~50 min",
-        "ex": [("Desenvolvimento", "4x8-10", "Deltoides", ic_press),
-               ("Elevação lateral", "4x12-15", "Deltoide lateral", ic_lateral),
-               ("Elevação frontal", "3x12", "Deltoide anterior", ic_lateral),
-               ("Remada alta", "3x12", "Deltoide & trapézio", ic_row),
-               ("Encolhimento", "3x15", "Trapézio", ic_shrug)]},
-    4: {"nome": "Braços", "alvos": ["biceps", "triceps", "forearm"], "dur": "~48 min",
-        "ex": [("Rosca direta na barra", "4x8-12", "Bíceps", ic_curl),
-               ("Tríceps na polia", "4x10-12", "Tríceps", ic_pushdown),
-               ("Rosca alternada", "3x10-12", "Bíceps & braquial", ic_curl),
-               ("Tríceps testa", "3x10-12", "Tríceps (cabeça longa)", ic_pushdown),
-               ("Rosca martelo", "3x12-15", "Antebraço", ic_hammer)]},
-    5: {"nome": "Pedal (bike)", "alvos": ["quads", "calves"], "dur": "60-90 min",
-        "ex": [("Pedal em Z2 (aeróbio)", "60-90 min", "Base aeróbica", ic_bike),
-               ("3-4 tiros de 3 min forte", "com 3 min leve", "Limiar", ic_bike),
-               ("Cadência 85-95 rpm", "manter", "Eficiência", ic_bike),
-               ("Meta: 25-40 km", "moderado", "Volume", ic_bike)]},
-    6: {"nome": "Descanso ativo", "alvos": [], "dur": "20-30 min",
+    0: {"nome": "Treino A — Peito & Tríceps", "alvos": ["chest", "triceps", "delts"], "dur": "~55 min",
+        "ex": [("Supino reto (barra/máquina)", "3x6-10", "Peitoral", ic_bench),
+               ("Supino inclinado c/ halteres", "3x8-12", "Peitoral superior", ic_bench),
+               ("Crucifixo / crossover", "3x10-15", "Peitoral (abertura)", ic_fly),
+               ("Desenvolvimento complementar", "3x8-12", "Deltoides", ic_press),
+               ("Tríceps na polia", "3x8-12", "Tríceps", ic_pushdown),
+               ("Tríceps acima da cabeça", "3x10-15", "Tríceps (cabeça longa)", ic_pushdown)]},
+    1: {"nome": "Treino B — Costas & Bíceps", "alvos": ["lats", "biceps", "forearm"], "dur": "~55 min",
+        "ex": [("Puxada alta / barra assistida", "3x6-10", "Dorsais", ic_pulldown),
+               ("Remada baixa", "3x8-12", "Costas (meio)", ic_row),
+               ("Remada unilateral", "3x8-12", "Costas", ic_row),
+               ("Pulldown braço estendido", "3x10-15", "Dorsais", ic_pulldown),
+               ("Rosca direta", "3x8-12", "Bíceps", ic_curl),
+               ("Rosca alternada / martelo", "3x10-15", "Bíceps & antebraço", ic_hammer)]},
+    2: {"nome": "Treino C — Pernas completas", "alvos": ["quads", "glutes", "hamstrings", "calves"], "dur": "~55 min",
+        "ex": [("Agachamento / leg press", "3x6-10", "Quadríceps & glúteos", ic_squat),
+               ("Cadeira extensora", "3x10-15", "Quadríceps (pico)", ic_legext),
+               ("Mesa flexora", "3x8-12", "Isquiotibiais", ic_legcurl),
+               ("Levantamento terra romeno", "3x8-12", "Posterior de coxa", ic_rdl),
+               ("Panturrilha", "4x10-15", "Gastrocnêmio & sóleo", ic_calf),
+               ("Complementar de glúteos", "3x10-15", "Glúteos", ic_glute)]},
+    3: {"nome": "Descanso / atividade leve", "alvos": [], "dur": "20-30 min",
         "ex": [("Mobilidade de quadril/ombro", "8-10 min", "Amplitude", ic_stretch),
                ("Alongamento posterior", "5 min", "Cadeia posterior", ic_stretch),
                ("Caminhada leve", "15-20 min", "Recuperação", ic_stretch)]},
+    4: {"nome": "Treino D — Ombros, Peito & Braços", "alvos": ["delts", "chest", "biceps", "triceps"], "dur": "~50 min",
+        "ex": [("Desenvolvimento (halteres/máquina)", "3x6-10", "Deltoides", ic_press),
+               ("Elevação lateral", "3x10-15", "Deltoide lateral", ic_lateral),
+               ("Crucifixo inverso", "3x10-15", "Deltoide posterior", ic_reverse_fly),
+               ("Supino inclinado", "3x8-12", "Peitoral superior", ic_bench),
+               ("Rosca bíceps", "3x10-12", "Bíceps", ic_curl),
+               ("Tríceps na polia", "3x10-12", "Tríceps", ic_pushdown)]},
+    5: {"nome": "Treino E — Pernas & Costas complementar", "alvos": ["quads", "lats", "calves"], "dur": "~55 min",
+        "ex": [("Leg press", "3x8-12", "Quadríceps & glúteos", ic_legpress),
+               ("Agachamento / hack squat", "3x8-12", "Quadríceps", ic_squat),
+               ("Mesa flexora", "3x10-15", "Isquiotibiais", ic_legcurl),
+               ("Remada", "3x8-12", "Costas", ic_row),
+               ("Puxada", "3x8-12", "Dorsais", ic_pulldown),
+               ("Panturrilha", "3x10-15", "Gastrocnêmio & sóleo", ic_calf)]},
+    6: {"nome": "Descanso", "alvos": [], "dur": "dia todo",
+        "ex": [("Descanso total", "-", "Recuperação completa", ic_stretch)]},
 }
 
 

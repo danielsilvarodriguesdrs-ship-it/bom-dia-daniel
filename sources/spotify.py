@@ -15,7 +15,7 @@ def _token():
 
 
 def spotify_do_dia():
-    """Retorna dict com podcast e música, ou None se não configurado (fase 1)."""
+    """Retorna dict com podcast, ou None se não configurado (fase 1)."""
     if not (CID and CSE and RTK):
         return None
     h = {"Authorization": "Bearer " + _token()}
@@ -34,21 +34,4 @@ def spotify_do_dia():
                        "min": round(e["duration_ms"] / 60000),
                        "url": e["external_urls"]["spotify"]}
 
-    saved = requests.get("https://api.spotify.com/v1/me/tracks?limit=50", headers=h).json()
-    musica = None
-    for it in saved.get("items", []):
-        t = it["track"]
-        genero = " ".join(a["name"] for a in t["artists"]).lower()
-        if any(k in t["name"].lower() + genero for k in ["gospel", "worship", "country", "hino"]):
-            musica = {"titulo": t["name"], "artista": t["artists"][0]["name"],
-                      "url": t["external_urls"]["spotify"]}
-            break
-    if not musica:
-        s = requests.get("https://api.spotify.com/v1/search",
-                          params={"q": "country gospel animado", "type": "playlist", "limit": 1, "market": "BR"},
-                          headers=h).json()
-        pls = s.get("playlists", {}).get("items", [])
-        if pls:
-            musica = {"titulo": pls[0]["name"], "artista": "playlist",
-                      "url": pls[0]["external_urls"]["spotify"]}
-    return {"podcast": podcast, "musica": musica}
+    return {"podcast": podcast}
