@@ -2,7 +2,9 @@ name: bom-dia-daniel
 
 on:
   schedule:
-    - cron: "50 6 * * *"       # 06:50 UTC = 03:50 America/Sao_Paulo
+    # Disparo principal: cron-job.org chama workflow_dispatch às 05:28 BRT (pontual).
+    # Este schedule é só reserva — o GitHub costuma atrasar horas.
+    - cron: "28 8 * * *"       # 08:28 UTC = 05:28 America/Sao_Paulo
   workflow_dispatch:
 
 permissions:
@@ -41,10 +43,21 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
 
+      - name: Verificar se o resumo de hoje já foi enviado
+        id: trava
+        if: github.event_name == 'schedule'
+        run: |
+          if [ "$(git log -1 --format=%s)" = "resumo matinal $(date +%F)" ]; then
+            echo "Resumo de hoje já enviado — encerrando sem duplicar."
+            echo "enviado=1" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Gerar e enviar o resumo
+        if: steps.trava.outputs.enviado != '1'
         run: python brief.py
 
       - name: Publicar página (GitHub Pages)
+        if: steps.trava.outputs.enviado != '1'
         run: |
           git config user.name  "bom-dia-daniel-bot"
           git config user.email "actions@users.noreply.github.com"

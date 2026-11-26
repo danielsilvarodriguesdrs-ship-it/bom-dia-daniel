@@ -91,7 +91,7 @@ footer{{margin-top:48px;padding-bottom:36px;font-size:12px;color:var(--soft)}}
 {ctx["mapa"]}<div class="grid">{ex_cards}</div></div>
 <div class="sec"><div class="h">Alimentação do dia</div>
 <div class="meals">{_refeicoes_html(ctx["dieta"])}</div></div>
-<footer>Atualizado automaticamente todo dia às 03h00 (America/Sao_Paulo).</footer>
+<footer>Atualizado automaticamente todo dia às 05h30 (America/Sao_Paulo).</footer>
 </div></body></html>'''
 
 

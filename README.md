@@ -1,6 +1,6 @@
 # bom-dia-daniel
 
-Resumo matinal automático, disparado todo dia às 03h20 (America/Sao_Paulo) via GitHub Actions —
+Resumo matinal automático, disparado todo dia às 05h30 (America/Sao_Paulo) — cron-job.org aciona o workflow (o schedule do GitHub fica só como reserva) —
 não depende do PC estar ligado. Envia mensagem no Telegram e publica uma página no GitHub Pages.
 
 ## Secrets necessários (Settings → Secrets and variables → Actions)
