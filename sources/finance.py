@@ -15,7 +15,8 @@ def coletar_financeiro():
     r = requests.post(
         f"{url}/rest/v1/rpc/resumo_matinal",
         json={"p_chave": chave},
-        headers={"apikey": anon, "Authorization": "Bearer " + anon},
+        # Chave nova (sb_publishable_...) vai só no apikey; a legada (JWT eyJ...) também no Bearer.
+        headers={"apikey": anon, **({"Authorization": "Bearer " + anon} if anon.startswith("eyJ") else {})},
         timeout=20,
     )
     if r.status_code in (401, 403):
