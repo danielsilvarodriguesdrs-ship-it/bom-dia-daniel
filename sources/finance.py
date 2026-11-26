@@ -12,14 +12,23 @@ def coletar_financeiro():
     chave = os.environ.get("FINANCE_BRIEF_KEY")
     if not (url and anon and chave):
         raise RuntimeError("secrets SUPABASE_URL/SUPABASE_ANON_KEY/FINANCE_BRIEF_KEY não configurados")
-    r = requests.post(
-        f"{url}/rest/v1/rpc/resumo_matinal",
-        json={"p_chave": chave},
-        # Chave nova (sb_publishable_...) vai só no apikey; a legada (JWT eyJ...) também no Bearer.
-        headers={"apikey": anon, **({"Authorization": "Bearer " + anon} if anon.startswith("eyJ") else {})},
-        timeout=20,
-    )
+    # Mensagens de erro nunca repetem o valor dos secrets (elas aparecem no Telegram).
+    if not (url.startswith("https://") and url.endswith(".supabase.co")):
+        raise RuntimeError("SUPABASE_URL inválida: deve ser https://<id>.supabase.co")
+    if not (anon.startswith("sb_publishable_") or anon.startswith("eyJ")):
+        raise RuntimeError("SUPABASE_ANON_KEY inválida: use a chave publicável")
+    try:
+        r = requests.post(
+            f"{url}/rest/v1/rpc/resumo_matinal",
+            json={"p_chave": chave},
+            # Chave nova (sb_publishable_...) vai só no apikey; a legada (JWT eyJ...) também no Bearer.
+            headers={"apikey": anon, **({"Authorization": "Bearer " + anon} if anon.startswith("eyJ") else {})},
+            timeout=20,
+        )
+    except requests.RequestException as e:
+        raise RuntimeError(f"Supabase inacessível ({type(e).__name__})") from None
     if r.status_code in (401, 403):
-        raise RuntimeError("chave recusada")
-    r.raise_for_status()
+        raise RuntimeError("chave recusada (confira FINANCE_BRIEF_KEY e SUPABASE_ANON_KEY)")
+    if r.status_code >= 400:
+        raise RuntimeError(f"Supabase respondeu HTTP {r.status_code}")
     return r.json()
