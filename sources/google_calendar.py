@@ -1,6 +1,6 @@
 import requests
 from config import now
-from sources.google_oauth import access_token, contas_disponiveis
+from sources.google_oauth import access_token, contas_disponiveis, ERROS
 
 LABEL_ROTULO = {"pessoal": "pessoal", "campofort": "CampoFort"}
 
@@ -42,7 +42,8 @@ def eventos_do_dia():
     for conta in contas_disponiveis():
         try:
             todos.extend(_eventos_conta(conta, inicio, fim))
-        except Exception:
+        except Exception as e:
+            ERROS[f"Agenda {LABEL_ROTULO.get(conta, conta)}"] = str(e)[:80]
             continue
     todos.sort(key=lambda e: e["inicio"] or "")
     return todos

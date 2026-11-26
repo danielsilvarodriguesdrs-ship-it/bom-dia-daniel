@@ -20,9 +20,15 @@ def access_token(conta):
         "refresh_token": refresh_token,
         "grant_type": "refresh_token",
     }, timeout=20)
+    if r.status_code == 400 and "invalid_grant" in r.text:
+        raise RuntimeError("acesso expirado — renovar token")
     r.raise_for_status()
     return r.json()["access_token"]
 
 
 def contas_disponiveis():
     return [nome for nome, tok in CONTAS.items() if tok]
+
+
+# Erros por conta, lidos pelo brief.py para a linha "Fontes" da mensagem.
+ERROS = {}

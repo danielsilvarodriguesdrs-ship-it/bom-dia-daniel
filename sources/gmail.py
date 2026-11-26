@@ -1,5 +1,5 @@
 import requests
-from sources.google_oauth import access_token, contas_disponiveis
+from sources.google_oauth import access_token, contas_disponiveis, ERROS
 
 LABEL_ROTULO = {"pessoal": "pessoal", "campofort": "CampoFort"}
 
@@ -40,6 +40,7 @@ def pendencias_do_dia():
     for conta in contas_disponiveis():
         try:
             todas.extend(_pendencias_conta(conta))
-        except Exception:
+        except Exception as e:
+            ERROS[f"Gmail {LABEL_ROTULO.get(conta, conta)}"] = str(e)[:80]
             continue
     return todas

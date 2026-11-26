@@ -35,6 +35,12 @@ def _refeicoes_html(dieta):
     return blocos
 
 
+def _fontes_txt(ctx):
+    partes = [f"✅ {E(n)}" for n in ctx.get("fontes_ok", [])]
+    partes += [f"⚠️ {E(n)} ({E(err)})" for n, err in ctx.get("fontes_falha", [])]
+    return " · ".join(partes)
+
+
 def pagina_html(ctx):
     """ctx: dict com headline, precisa[], meditacao, treino, mapa, spotify, dieta."""
     ex_cards = ""
@@ -44,7 +50,7 @@ def pagina_html(ctx):
                      f'<div class="ex-sr">{E(sr)}</div><div class="ex-mus">{E(mus)}</div></div>')
     precisa = "".join(
         f'<div class="item"><b>{n}.</b> {t}</div>' for n, t in ctx["precisa"]) \
-        or '<div class="calm">Nada te trava hoje.</div>'
+        or '<div class="calm">Nada pendente hoje.</div>'
     return f'''<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -85,13 +91,14 @@ footer{{margin-top:48px;padding-bottom:36px;font-size:12px;color:var(--soft)}}
 </div><div class="pasto">{_pasto()}</div></div>
 <div class="wrap">
 <div class="sec"><div class="h">Ações a serem feitas</div>{precisa}</div>
+{('<div class="sec"><div class="h">Finanças</div>' + "".join(f'<div class="item">{l}</div>' for l in ctx.get("financas", [])) + '</div>') if ctx.get("financas") else ""}
 <div class="sec"><div class="h">Meditação do dia · Frei Gilson</div>
 <div class="item"><a href="{A(ctx["meditacao"]["url"])}">{E(ctx["meditacao"]["titulo"])}</a></div></div>
 <div class="sec"><div class="h">Treino do dia — {E(ctx["treino"]["nome"])}</div>
 {ctx["mapa"]}<div class="grid">{ex_cards}</div></div>
 <div class="sec"><div class="h">Alimentação do dia</div>
 <div class="meals">{_refeicoes_html(ctx["dieta"])}</div></div>
-<footer>Atualizado automaticamente todo dia às 05h30 (America/Sao_Paulo).</footer>
+<footer>Atualizado automaticamente todo dia às 05h30 (America/Sao_Paulo).<br>Fontes: {_fontes_txt(ctx)}</footer>
 </div></body></html>'''
 
 
@@ -106,7 +113,11 @@ def telegram_html(ctx):
     if ctx["precisa_txt"]:
         linhas += ctx["precisa_txt"]
     else:
-        linhas.append("Nada te trava hoje.")
+        linhas.append("Nada pendente hoje.")
+    if ctx.get("financas"):
+        linhas.append("")
+        linhas.append("💰 <b>Finanças</b>")
+        linhas += ctx["financas"]
     linhas.append("")
     linhas.append("🙏 <b>Meditação do dia</b>")
     linhas.append(f'<a href="{he(ctx["meditacao"]["url"])}">{E(ctx["meditacao"]["titulo"])}</a>')
@@ -122,6 +133,7 @@ def telegram_html(ctx):
         if sp.get("podcast"):
             linhas += ["", "🎧 <b>Podcast do dia</b>",
                        f'<a href="{he(sp["podcast"]["url"])}">{E(sp["podcast"]["titulo"])}</a> · ~{sp["podcast"]["min"]} min']
+    linhas += ["", f'<i>Fontes: {_fontes_txt(ctx)}</i>']
     return _cortar_seguro(linhas)
 
 
