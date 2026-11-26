@@ -8,7 +8,7 @@ O que faz:
  1. Pede o Client ID e o Client Secret do Google (digitados aqui, nada vai para o chat).
  2. Abre o navegador para você entrar na conta Google certa e autorizar (só leitura).
  3. Grava o novo token direto no GitHub como secret, usando o `gh` já logado.
-Precisa de um cliente OAuth do tipo "App para computador" (Desktop).
+Usa o cliente "Bom dia Daniel!" (Aplicativo da Web) com o URI http://localhost:8080/ já cadastrado.
 """
 import sys
 import json
@@ -22,8 +22,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 REPO = "danielsilvarodriguesdrs-ship-it/bom-dia-daniel"
 ESCOPOS = "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly"
-PORTA = 8765
-REDIRECT = f"http://127.0.0.1:{PORTA}/"
+PORTA = 8080
+REDIRECT = f"http://localhost:{PORTA}/"  # igual ao URI cadastrado no cliente
 SECRET_POR_CONTA = {"pessoal": "GOOGLE_REFRESH_TOKEN_PESSOAL", "campofort": "GOOGLE_REFRESH_TOKEN_CAMPOFORT"}
 
 
@@ -64,7 +64,7 @@ def main():
     print(f"\nAbrindo o navegador. ENTRE NA CONTA GOOGLE {conta.upper()} e autorize.")
     print("Se aparecer 'O Google não verificou este app', clique em Avançado → Acessar (é o seu próprio app).\n")
     webbrowser.open(url)
-    srv = HTTPServer(("127.0.0.1", PORTA), Handler)
+    srv = HTTPServer(("localhost", PORTA), Handler)
     while "code" not in recebido and "error" not in recebido:
         srv.handle_request()
 
