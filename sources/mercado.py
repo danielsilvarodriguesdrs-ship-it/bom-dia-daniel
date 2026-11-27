@@ -16,9 +16,19 @@ def _num(s):
 
 
 def _cambio(out):
-    j = get(AWESOME).json()
-    out["dolar"] = {"valor": float(j["USDBRL"]["bid"]), "var": float(j["USDBRL"]["pctChange"])}
-    out["euro"] = {"valor": float(j["EURBRL"]["bid"]), "var": float(j["EURBRL"]["pctChange"])}
+    """AwesomeAPI (cotação comercial ao vivo); se bloquear (acontece no GitHub Actions),
+    usa a PTAX oficial do Banco Central (séries 1 = dólar, 21619 = euro)."""
+    try:
+        j = get(AWESOME, tentativas=1).json()
+        out["dolar"] = {"valor": float(j["USDBRL"]["bid"]), "var": float(j["USDBRL"]["pctChange"])}
+        out["euro"] = {"valor": float(j["EURBRL"]["bid"]), "var": float(j["EURBRL"]["pctChange"])}
+        return
+    except Exception:
+        pass
+    for chave, serie in (("dolar", 1), ("euro", 21619)):
+        ult = get(SGS.format(serie).replace("ultimos/1", "ultimos/2"), timeout=20).json()
+        atual, anterior = float(ult[-1]["valor"]), float(ult[-2]["valor"])
+        out[chave] = {"valor": atual, "var": (atual / anterior - 1) * 100, "ptax": True}
 
 
 def _ibov(out):
