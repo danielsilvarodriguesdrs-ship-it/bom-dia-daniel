@@ -46,6 +46,13 @@ TEMAS = [
     ("Região", ["gn-cidade", "gn-goias"], 1, 24 * 7, False),
 ]
 
+# Manchete de Agro precisa ter ao menos um destes termos (evita política/geral vinda de feeds amplos).
+TERMOS_AGRO = re.compile(
+    r"\b(agro\w*|boi|bois|gado|bovin\w*|pecu[aá]ri\w*|arroba|bezerr\w*|frigor[ií]fic\w*|carne\w*|"
+    r"soja|milho|safra\w*|plantio|colheita|lavour\w*|rural\w*|fazend\w*|produtor\w*|pastage\w*|"
+    r"confinament\w*|leite|leiteir\w*|caf[eé]|algod[aã]o|trigo|fertiliz\w*|defensiv\w*|aftosa|"
+    r"embrapa|cepea|conab|mapa|exporta\w*|abate\w*|ra[cç][aã]o|insumo\w*|clima|chuva\w*)\b", re.I)
+
 BLOQUEADAS = {"ao vivo", "video", "horoscopo", "bbb", "futebol", "brasileirao", "loteria",
               "mega sena", "quina", "lotofacil", "lotomania", "dia de sorte", "sorteado",
               "jogo do", "escalacao", "palpite", "veja fotos", "podcast", "patrocinado", "publieditorial"}
@@ -155,6 +162,8 @@ def noticias_do_dia(estado, d):
                     palavras = " " + " ".join(normalizar(it["titulo"])) + " "
                     h = hash_titulo(it["titulo"])
                     if h in vistas or h in enviadas or any(f" {b} " in palavras for b in BLOQUEADAS):
+                        continue
+                    if tema == "Agro" and not TERMOS_AGRO.search(it["titulo"]):
                         continue
                     chave_assunto = {w for w in palavras.split() if len(w) > 3}
                     if any(len(chave_assunto & a) / max(1, len(chave_assunto | a)) > 0.3 for a in assuntos):

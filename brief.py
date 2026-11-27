@@ -131,33 +131,67 @@ def _bloco_financas(fin, d):
 
 
 def _bloco_mercado(m):
-    """Linhas para <pre> (alinhadas) + alertas de variação forte."""
-    linhas, alertas = [], []
-    def lin(nome, valor, var):
-        linhas.append(f"{nome:<9}{valor:>13} {seta(var)}")
-    if "dolar" in m:
-        lin("Dólar", brl(m["dolar"]["valor"]), m["dolar"]["var"])
-        if abs(m["dolar"]["var"]) >= 1:
-            alertas.append(f'Dólar {seta(m["dolar"]["var"]).strip()}')
-    if "euro" in m:
-        lin("Euro", brl(m["euro"]["valor"]), m["euro"]["var"])
+    """Painel pecuário em linhas de largura fixa (<pre>) + alertas de variação forte.
+    Fontes: B3 (ajuste do pregão anterior), CEPEA (físico), Banco Central."""
+    L, alertas = [], []
+
+    def lin(nome, valor, var=None, com_var=True):
+        L.append(f"{nome:<12}{valor:>12}" + (f" {seta(var)}" if com_var else ""))
+
+    def alerta(nome, var, limite):
+        if var is not None and abs(var) >= limite:
+            alertas.append(f"{nome} {seta(var).strip()}")
+
+    b3 = m.get("b3", {})
+    if b3:
+        L.append("B3 · FUTUROS (ajuste)")
+        for f in b3.get("boi", []):
+            lin(f"Boi {f['venc']}", brl(f["ajuste"]), f["var"])
+        if b3.get("boi"):
+            alerta("Boi B3", b3["boi"][0]["var"], 2)
+        for f in b3.get("milho", []):
+            lin(f"Milho {f['venc']}", brl(f["ajuste"]), f["var"])
+        for f in b3.get("dolar_fut", []):
+            lin(f"Dólar {f['venc']}", brl(f["ajuste"], 4), f["var"])
+        for f in b3.get("soja_cme", []):
+            lin(f"Soja {f['venc']}", "US$ " + num(f["ajuste"]), f["var"])
     if "ibov" in m:
-        lin("Ibovespa", num(m["ibov"]["valor"], 0) + " pts", m["ibov"]["var"])
-        if m["ibov"]["var"] is not None and abs(m["ibov"]["var"]) >= 2:
-            alertas.append(f'Ibovespa {seta(m["ibov"]["var"]).strip()}')
-    for chave, nome, un in (("boi", "Boi @", ""), ("soja", "Soja sc", ""), ("milho", "Milho sc", "")):
-        if chave in m:
-            lin(nome, brl(m[chave]["valor"]), m[chave]["var"])
-            if m[chave]["var"] is not None and abs(m[chave]["var"]) >= 3:
-                alertas.append(f'{nome.split()[0]} {seta(m[chave]["var"]).strip()}')
-    if "selic" in m:
-        juro_real = ""
-        if "cdi" in m and "ipca12m" in m:
-            juro_real = f" · real ~{num(m['cdi'] - m['ipca12m'], 1)}%"
-        linhas.append(f"Selic {num(m['selic'])}% · CDI {num(m.get('cdi', 0))}%")
-        if "ipca12m" in m:
-            linhas.append(f"IPCA 12m {num(m['ipca12m'])}%{juro_real}")
-    return linhas, alertas
+        lin("Ibovespa", num(m["ibov"]["valor"], 0), m["ibov"]["var"])
+        alerta("Ibovespa", m["ibov"]["var"], 2)
+
+    c = m.get("cepea", {})
+    if c:
+        data = next(iter(c.values()))["data"][:5]
+        L.append(f"FÍSICO · CEPEA {data}")
+        for chave, nome, casas in (("boi", "Boi SP @", 2), ("bezerro", "Bezerro MS", 0),
+                                   ("milho", "Milho sc", 2), ("soja", "Soja Pgá sc", 2)):
+            if chave in c:
+                lin(nome, brl(c[chave]["valor"], casas), c[chave]["var"])
+        if "boi" in c:
+            alerta("Boi CEPEA", c["boi"]["var"], 3)
+
+    if "ptax" in m or "selic" in m:
+        L.append("BANCO CENTRAL")
+        if "ptax" in m:
+            lin("Dólar PTAX", brl(m["ptax"]["valor"], 4), m["ptax"]["var"])
+            alerta("Dólar", m["ptax"]["var"], 1)
+        if "euro" in m:
+            lin("Euro PTAX", brl(m["euro"]["valor"], 4), m["euro"]["var"])
+        juros = [f"{n} {num(m[k])}%" for k, n in (("selic", "Selic"), ("cdi", "CDI"), ("ipca12m", "IPCA")) if k in m]
+        if juros:
+            L.append(" · ".join(juros))
+
+    ind = []
+    if "troca_bezerro" in m:
+        ind.append(f"Bezerro MS = {num(m['troca_bezerro'], 2)} @")
+    if "troca_milho" in m:
+        ind.append(f"1 @ boi = {num(m['troca_milho'], 2)} sc milho")
+    if "base_boi" in m:
+        ind.append(f"Base boi ({m['base_boi']['venc']}): {brl(m['base_boi']['valor'])}")
+    if ind:
+        L.append("RELAÇÕES DE TROCA")
+        L += ind
+    return L, alertas
 
 
 def _lembretes(d):
@@ -270,11 +304,17 @@ def main():
         if clima["janela"]:
             c += f' · janela seca {clima["janela"]}'
         dez.append(c)
-    if "dolar" in mer:
-        x = f'💵 Dólar {brl(mer["dolar"]["valor"])} {seta(mer["dolar"]["var"]).strip()}'
-        if "boi" in mer:
-            x += f' · 🐂 @ {brl(mer["boi"]["valor"])}'
-        dez.append(x)
+    partes = []
+    boi_cepea = mer.get("cepea", {}).get("boi")
+    if boi_cepea:
+        partes.append(f'🐂 @ {brl(boi_cepea["valor"])} (CEPEA)')
+    if mer.get("b3", {}).get("boi"):
+        f = mer["b3"]["boi"][0]
+        partes.append(f'B3 {f["venc"]} {brl(f["ajuste"])}')
+    if "ptax" in mer:
+        partes.append(f'💵 {brl(mer["ptax"]["valor"])} {seta(mer["ptax"]["var"]).strip()}')
+    if partes:
+        dez.append(" · ".join(partes))
 
     lit, santo = val("Liturgia"), val("Santo")
     fe = []
@@ -293,7 +333,7 @@ def main():
         "cabecalho": f"{DIAS_CURTOS[d.weekday()]}, {d.day} {MESES[d.month - 1][:3]}",
         "alertas": alertas, "dez": dez, "acoes": acoes,
         "financas": _bloco_financas(fin, d) if fin else [],
-        "mercado": mercado_linhas, "noticias": nots,
+        "mercado": mercado_linhas, "mercado_fontes": mer.get("fontes"), "noticias": nots,
         "emails": [{"de": nome_remetente(e["de"]), "conta": e["conta"], "assunto": e["assunto"]} for e in emails],
         "fe": fe, "meditacao": med, "clima": clima,
         "treino": treino, "mapa": mapa_muscular(treino["alvos"]),

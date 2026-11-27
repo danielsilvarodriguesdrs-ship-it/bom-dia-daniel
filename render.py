@@ -39,26 +39,49 @@ def _fontes_txt(ctx):
     return " · ".join(partes)
 
 
-_RE_MERCADO = re.compile(r"^(\S+(?: \S+)?)\s+(.+?)\s+([▲▼▬]\s*[\d.,]+%|—)\s*$")
+_RE_MERCADO = re.compile(r"^(.+?)\s{2,}(.+?)\s+([▲▼▬]\s*[\d.,]+%|—)\s*$")
 
 
-def _mercado_html(linhas):
-    """Linhas de largura fixa do mercado -> tabela (nome | valor | variação); o resto vira nota."""
-    rows, notas = "", ""
+def _mercado_html(linhas, fontes=None):
+    """Linhas de largura fixa do mercado -> grupos (B3, CEPEA, Banco Central, Relações de troca),
+    cada um com título e tabela nome | valor | variação; linhas soltas viram notas do grupo."""
+    grupos, atual = [], None
+
+    def novo_grupo(titulo):
+        g = {"titulo": titulo, "rows": "", "notas": ""}
+        grupos.append(g)
+        return g
+
     for l in linhas:
-        m = _RE_MERCADO.match(l.strip())
+        t = l.strip()
+        cabeca = t.split("·")[0].strip()
+        if cabeca and cabeca == cabeca.upper() and any(ch.isalpha() for ch in cabeca)                 and not _RE_MERCADO.match(t):
+            atual = novo_grupo(t)
+            continue
+        if atual is None:
+            atual = novo_grupo("")
+        m = _RE_MERCADO.match(t)
         if m:
             nome, valor, var = m.groups()
             cls = "up" if var.startswith("▲") else "down" if var.startswith("▼") else "flat"
             var = re.sub(r"^([▲▼▬])\s*", r"\1 ", var)
-            rows += (f'<tr><th scope="row">{E(nome)}</th><td class="val">{E(valor)}</td>'
-                     f'<td class="var {cls}">{E(var)}</td></tr>')
+            atual["rows"] += (f'<tr><th scope="row">{E(nome)}</th><td class="val">{E(valor)}</td>'
+                              f'<td class="var {cls}">{E(var)}</td></tr>')
         else:
-            notas += f'<li>{E(l.strip())}</li>'
-    out = f'<table class="mkt"><tbody>{rows}</tbody></table>' if rows else ""
-    if notas:
-        out += f'<ul class="mkt-notes">{notas}</ul>'
-    return f'<div class="card flush">{out}</div>'
+            atual["notas"] += f'<li>{E(t)}</li>'
+    out = ""
+    for g in grupos:
+        out += '<div class="card flush mkt-grupo">'
+        if g["titulo"]:
+            out += f'<div class="mkt-titulo">{E(g["titulo"])}</div>'
+        if g["rows"]:
+            out += f'<table class="mkt"><tbody>{g["rows"]}</tbody></table>'
+        if g["notas"]:
+            out += f'<ul class="mkt-notes">{g["notas"]}</ul>'
+        out += "</div>"
+    if fontes:
+        out += f'<p class="mkt-fontes">Fontes: {E(" · ".join(fontes))}</p>'
+    return out
 
 
 def _clima_html(c):
@@ -185,6 +208,9 @@ table.mkt{width:100%;border-collapse:collapse}
 .mkt td.val{text-align:right;font-weight:700;white-space:nowrap}
 .mkt td.var{text-align:right;font-weight:600;white-space:nowrap;width:1%;color:var(--muted);font-size:15px}
 .mkt td.var.up{color:var(--accent)}
+.mkt-grupo{margin-bottom:14px}
+.mkt-titulo{font-size:13px;font-weight:700;letter-spacing:.06em;color:var(--accent);padding:14px 18px 4px}
+.mkt-fontes{font-size:14px;color:var(--muted);margin-top:4px}
 .mkt-notes{list-style:none;border-top:1px solid var(--line);background:var(--accent-soft);padding:12px 18px}
 .mkt-notes li{font-size:15px;font-weight:600;color:var(--soft);padding:2px 0}
 .news-list{display:grid;gap:12px}
@@ -262,7 +288,7 @@ def pagina_html(ctx):
     n_acoes = len(ctx.get("acoes") or [])
 
     fin = _linhas(ctx.get("financas"), vazio="Finanças indisponíveis hoje.")
-    mer = _mercado_html(ctx["mercado"]) if ctx.get("mercado") else '<p class="empty">Cotações indisponíveis hoje.</p>'
+    mer = _mercado_html(ctx["mercado"], ctx.get("mercado_fontes")) if ctx.get("mercado") else '<p class="empty">Cotações indisponíveis hoje.</p>'
     nots = f'<div class="news-list">{_noticias_html(ctx.get("noticias"))}</div>'
 
     # Fé + meditação + podcast
@@ -335,6 +361,8 @@ def telegram_html(ctx):
 
     if ctx["mercado"]:
         L += ["", "<b>📊 Mercado</b>", "<pre>" + E(chr(10).join(ctx["mercado"])) + "</pre>"]
+        if ctx.get("mercado_fontes"):
+            L.append(f'<i>Fontes: {E(" · ".join(ctx["mercado_fontes"]))}</i>')
 
     if ctx["noticias"]:
         L += ["", "<b>📰 Manchetes</b>"]
