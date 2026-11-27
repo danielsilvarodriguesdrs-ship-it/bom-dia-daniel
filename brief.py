@@ -127,10 +127,6 @@ def _bloco_financas(fin, d):
         linhas.append("Próximas faturas: " + " · ".join(
             f'{E(f["banco"])} {brl(f["valor"])} ({date.fromisoformat(f["vencimento"]).strftime("%d/%m")})'
             for f in proximas))
-    for m in (fin.get("metas") or []):
-        if m.get("pct"):
-            cheio = max(0, min(10, round(float(m["pct"]) / 10)))
-            linhas.append(f'Meta {E(m["nome"])}: {"▓" * cheio}{"░" * (10 - cheio)} {m["pct"]:.0f}%')
     return linhas
 
 
