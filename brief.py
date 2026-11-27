@@ -136,11 +136,26 @@ def _bloco_mercado(m):
     L, alertas = [], []
 
     def lin(nome, valor, var=None, com_var=True):
-        L.append(f"{nome:<12}{valor:>12}" + (f" {seta(var)}" if com_var else ""))
+        L.append(f"{nome:<13}{valor:>11}" + (f" {seta(var)}" if com_var else ""))
 
     def alerta(nome, var, limite):
         if var is not None and abs(var) >= limite:
             alertas.append(f"{nome} {seta(var).strip()}")
+
+    reg = m.get("regional", {})
+    if reg:
+        dt = next((x["data"][:5] for x in reg.get("boi", []) if x.get("data")), "")
+        L.append(f"GOIÁS · MATO GROSSO {dt}".strip())
+        rotulos = {"Goiânia/GO": "Boi Goiânia", "Reg. Sul/GO": "Boi Sul GO", "Cuiabá/MT": "Boi Cuiabá",
+                   "Norte/MT": "Boi Norte MT", "Sudoeste/MT": "Boi SO MT", "Sudeste/MT": "Boi SE MT"}
+        for x in reg.get("boi", []):
+            if x["praca"] in ("Goiânia/GO", "Reg. Sul/GO", "Cuiabá/MT", "Norte/MT"):
+                lin(rotulos[x["praca"]], brl(x["valor"]), x["var"])
+        curtos = {"Rio Verde/GO": "R.Verde", "Jataí/GO": "Jataí", "Sorriso/MT": "Sorriso",
+                  "Rondonópolis/MT": "Rondon.", "Primavera do Leste/MT": "Primav."}
+        for prod, nome in (("milho", "Milho"), ("soja", "Soja")):
+            for x in [x for x in reg.get(prod, []) if x["praca"] in ("Rio Verde/GO", "Sorriso/MT")][:2]:
+                lin(f"{nome} {curtos[x['praca']]}", brl(x["valor"]), x["var"])
 
     b3 = m.get("b3", {})
     if b3:
@@ -177,17 +192,24 @@ def _bloco_mercado(m):
             alerta("Dólar", m["ptax"]["var"], 1)
         if "euro" in m:
             lin("Euro PTAX", brl(m["euro"]["valor"], 4), m["euro"]["var"])
-        juros = [f"{n} {num(m[k])}%" for k, n in (("selic", "Selic"), ("cdi", "CDI"), ("ipca12m", "IPCA")) if k in m]
+        juros = [f"{n} {num(m[k])}%" for k, n in (("selic", "Selic"), ("cdi", "CDI")) if k in m]
         if juros:
             L.append(" · ".join(juros))
+        if "ipca12m" in m:
+            L.append(f"IPCA 12m {num(m['ipca12m'])}% (IBGE)")
 
     ind = []
+    boi_go = next((x for x in reg.get("boi", []) if x["praca"] == "Goiânia/GO"), None)
+    milho_rv = next((x for x in reg.get("milho", []) if x["praca"] == "Rio Verde/GO"), None)
+    if boi_go and milho_rv:
+        ind.append(f"@ GO = {num(boi_go['valor'] / milho_rv['valor'], 2)} sc milho R.Verde")
     if "troca_bezerro" in m:
-        ind.append(f"Bezerro MS = {num(m['troca_bezerro'], 2)} @")
-    if "troca_milho" in m:
-        ind.append(f"1 @ boi = {num(m['troca_milho'], 2)} sc milho")
-    if "base_boi" in m:
-        ind.append(f"Base boi ({m['base_boi']['venc']}): {brl(m['base_boi']['valor'])}")
+        ind.append(f"Bezerro MS = {num(m['troca_bezerro'], 2)} @ (SP)")
+    boi_b3 = (m.get("b3", {}).get("boi") or [None])[0]
+    if boi_go and boi_b3:
+        ind.append(f"Base GO x B3 {boi_b3['venc']}: {brl(boi_go['valor'] - boi_b3['ajuste'])}")
+    elif "base_boi" in m:
+        ind.append(f"Base SP x B3 {m['base_boi']['venc']}: {brl(m['base_boi']['valor'])}")
     if ind:
         L.append("RELAÇÕES DE TROCA")
         L += ind

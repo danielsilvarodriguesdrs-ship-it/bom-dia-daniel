@@ -24,7 +24,8 @@ CEPEA_IDS = {"boi": "boi gordo", "bezerro": "bezerro - ms", "milho": "milho", "s
 MESES_B3 = "FGHJKMNQUVXZ"
 MESES_ABR = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"]
 
-FONTES = ["B3 (ajustes do pregão anterior)", "CEPEA/Esalq", "Banco Central (PTAX/SGS)", "IBGE (IPCA)"]
+FONTES = ["B3 (ajustes do pregão anterior)", "CEPEA/Esalq", "Scot Consultoria (boi GO/MT)",
+          "Notícias Agrícolas (milho e soja GO/MT, por informante)", "Banco Central (PTAX/SGS)", "IBGE (IPCA)"]
 
 
 def _num(s):
@@ -134,6 +135,62 @@ def _cepea(out, hist):
                                    "var": _guardar(hist, "cepea_" + chave, valor, data)}
 
 
+SCOT_BOI = "https://www.scotconsultoria.com.br/cotacoes/boi-gordo/"
+NA_GRAOS = "https://www.noticiasagricolas.com.br/cotacoes/{}"
+# Praças de Goiás e Mato Grosso (região de atuação da CampoFort / Cria Bem)
+PRACAS_BOI = ["GO Goiânia", "GO Reg. Sul", "MT Cuiabá", "MT Norte", "MT Sudoeste", "MT Sudeste"]
+PRACAS_GRAOS = ["Rio Verde/GO", "Jataí/GO", "Sorriso/MT", "Rondonópolis/MT", "Primavera do Leste/MT"]
+
+
+def _texto_html(t):
+    import html as _h
+    t = re.sub(r"(?s)<(script|style)[^>]*>.*?</\1>", " ", t)
+    return re.sub(r"\s+", " ", _h.unescape(re.sub(r"<[^>]+>", " ", t)))
+
+
+def _regional(out, hist):
+    """Boi gordo por praça (Scot Consultoria) e milho/soja por praça (Notícias Agrícolas) em GO e MT."""
+    reg = out.setdefault("regional", {})
+    erros = []
+    try:
+        txt = _texto_html(get(SCOT_BOI, timeout=25).content.decode("utf-8", "replace"))
+        m = re.search(r"Mercado F[ií]sico - (\d{2}/\d{2}/\d{4})", txt)
+        data = m.group(1) if m else ""
+        boi = []
+        for praca in PRACAS_BOI:
+            uf, nome = praca.split(" ", 1)
+            r = re.search(re.escape(uf) + r"\s+" + re.escape(nome) + r"\*?\s+(\d+,\d+)\s+(\d+,\d+)\s+(-?\d+,\d+)", txt)
+            if r:
+                valor = _num(r.group(1))
+                boi.append({"praca": f"{nome}/{uf}", "valor": valor, "prazo30": _num(r.group(2)),
+                            "base_sp": _num(r.group(3)), "data": data,
+                            "var": _guardar(hist, f"scot_{uf}_{nome}", valor, data)})
+        if boi:
+            reg["boi"] = boi
+    except Exception as e:
+        erros.append(f"Scot: {str(e)[:40]}")
+    for produto in ("milho", "soja"):
+        try:
+            pagina = get(NA_GRAOS.format(produto), timeout=25).content.decode("utf-8", "replace")
+            tabela = next((tb for tb in re.findall(r"(?s)<table.*?</table>", pagina)
+                           if "Rio Verde/GO" in tb or "Sorriso/MT" in tb), "")
+            txt = _texto_html(tabela)
+            m = re.search(r"Atualizado em:\s*(\d{2}/\d{2}/\d{4})", _texto_html(pagina[pagina.find(tabela):][:3000]))
+            data = m.group(1) if m else ""
+            lista = []
+            for praca in PRACAS_GRAOS:
+                r = re.search(re.escape(praca) + r"\s*(?:\(([^)]*)\))?\s+(\d+,\d+)\s+([+-]?\d+,\d+)", txt)
+                if r:
+                    lista.append({"praca": praca, "informante": r.group(1) or "", "valor": _num(r.group(2)),
+                                  "var": _num(r.group(3)), "data": data})
+            if lista:
+                reg[produto] = lista
+        except Exception as e:
+            erros.append(f"{produto}: {str(e)[:40]}")
+    if erros and not reg:
+        raise RuntimeError("; ".join(erros))
+
+
 def _derivados(out):
     c = out.get("cepea", {})
     if "boi" in c and "bezerro" in c:
@@ -149,7 +206,8 @@ def mercado(estado):
     out, erros = {}, []
     hist = estado.setdefault("mercado", {})
     for nome, fn, args in (("B3 futuros", _b3_futuros, (out, hist)), ("B3 Ibovespa", _ibov, (out,)),
-                           ("Banco Central", _bcb, (out,)), ("CEPEA", _cepea, (out, hist))):
+                           ("Banco Central", _bcb, (out,)), ("CEPEA", _cepea, (out, hist)),
+                           ("Regional GO/MT", _regional, (out, hist))):
         try:
             fn(*args)
         except Exception as e:
