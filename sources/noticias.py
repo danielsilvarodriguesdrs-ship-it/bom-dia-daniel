@@ -48,10 +48,10 @@ TEMAS = [
 
 # Manchete de Agro precisa ter ao menos um destes termos (evita política/geral vinda de feeds amplos).
 TERMOS_AGRO = re.compile(
-    r"(agro\w*|boi|bois|gado|bovin\w*|pecu[aá]ri\w*|arroba|bezerr\w*|frigor[ií]fic\w*|carne bovina|"
+    r"\b(agro\w*|boi|bois|gado|bovin\w*|pecu[aá]ri\w*|arroba|bezerr\w*|frigor[ií]fic\w*|carne bovina|"
     r"soja|milho|safra\w*|plantio|colheita|lavour\w*|pastage\w*|pasto|confinament\w*|leite|leiteir\w*|"
     r"caf[eé]|algod[aã]o|trigo|fertiliz\w*|defensiv\w*|aftosa|embrapa|cepea|conab|abate\w*|"
-    r"produtor(es)? rura\w*|cr[eé]dito rural|plano safra|insumos? agr\w*)", re.I)
+    r"produtor(es)? rura\w*|cr[eé]dito rural|plano safra|insumos? agr\w*)\b", re.I)
 
 BLOQUEADAS = {"ao vivo", "video", "horoscopo", "bbb", "futebol", "brasileirao", "loteria",
               "mega sena", "quina", "lotofacil", "lotomania", "dia de sorte", "sorteado",
