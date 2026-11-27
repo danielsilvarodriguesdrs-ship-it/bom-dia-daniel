@@ -13,9 +13,14 @@ TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 FINANCE_URL = os.environ.get("FINANCE_URL", "https://financecontrollopen.lovable.app")
 
+CIDADE = "São Luís de Montes Belos"
+LAT, LON = -16.525, -50.37222
+SITE_URL = "https://danielsilvarodriguesdrs-ship-it.github.io/bom-dia-daniel/"
+
 FREI_GILSON_CHANNEL_ID = "UCbh6_TmFnAJLI56aAQeD3qw"
 FREI_GILSON_LIVE = "https://www.youtube.com/@FreiGilsonSomdoMonteOFICIAL/live"
 
+DIAS_CURTOS = ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"]
 DIAS = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira",
         "Sexta-feira", "Sábado", "Domingo"]
 MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho",

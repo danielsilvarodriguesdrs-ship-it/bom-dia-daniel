@@ -1,0 +1,4 @@
+{
+  "_como_usar": "Cada lembrete: nome, dia (1-31), mes (1-12 ou null = todo mês), avisar_dias_antes. Aparece em Ações.",
+  "lembretes": []
+}

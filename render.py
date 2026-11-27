@@ -49,7 +49,7 @@ def pagina_html(ctx):
                      f'<div class="ex-name"><span>{i}</span> {E(nome)}</div>'
                      f'<div class="ex-sr">{E(sr)}</div><div class="ex-mus">{E(mus)}</div></div>')
     precisa = "".join(
-        f'<div class="item"><b>{n}.</b> {t}</div>' for n, t in ctx["precisa"]) \
+        f'<div class="item"><b>{n}.</b> {t}</div>' for n, t in enumerate(ctx["acoes"], 1)) \
         or '<div class="calm">Nada pendente hoje.</div>'
     return f'''<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -68,6 +68,8 @@ color:var(--ink);background:var(--bg);line-height:1.5}}
 .pasto{{margin-top:22px;line-height:0}}
 .h{{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}}
 .sec{{margin-top:34px}} .item{{margin-top:12px;font-size:15px;color:var(--soft)}}
+.pre{{font-family:ui-monospace,Consolas,monospace;font-size:14px;margin-top:12px;background:#fff;border:1px solid var(--hair);border-radius:12px;padding:12px 14px;overflow-x:auto}}
+.src{{font-size:12px;color:var(--soft)}}
 .calm{{margin-top:12px;font-size:15px;color:var(--soft)}}
 .grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:20px}}
 .ex{{border:1px solid var(--hair);border-radius:14px;padding:12px;background:#fff;
@@ -87,68 +89,89 @@ footer{{margin-top:48px;padding-bottom:36px;font-size:12px;color:var(--soft)}}
 <div class="daydate">{E(data_extenso())}</div>
 <h1 class="headline">Bom dia, Daniel!</h1>
 <p class="subtitle">Abaixo estão suas atividades de hoje e as ações a serem desenvolvidas.</p>
-<p class="daysummary">{E(ctx["headline"])}</p>
+{('<p class="daysummary">⚠️ ' + E(" · ".join(ctx["alertas"])) + '</p>') if ctx.get("alertas") else ""}
 </div><div class="pasto">{_pasto()}</div></div>
 <div class="wrap">
-<div class="sec"><div class="h">Ações a serem feitas</div>{precisa}</div>
-{('<div class="sec"><div class="h">Finanças</div>' + "".join(f'<div class="item">{l}</div>' for l in ctx.get("financas", [])) + '</div>') if ctx.get("financas") else ""}
+<div class="sec"><div class="h">Em 10 segundos</div>{"".join(f'<div class="item">{x}</div>' for x in ctx["dez"])}</div>
+<div class="sec"><div class="h">Ações</div>{precisa}</div>
+{('<div class="sec" id="mercado"><div class="h">Mercado</div><pre class="pre">' + E(chr(10).join(ctx["mercado"])) + '</pre></div>') if ctx.get("mercado") else ""}
+{('<div class="sec" id="noticias"><div class="h">Manchetes</div>' + "".join(f'<div class="item"><b>{E(n["tema"])}:</b> <a href="{A(n["link"])}">{E(n["titulo"])}</a> <span class="src">{E(n["fonte"])}</span></div>' for n in ctx["noticias"]) + '</div>') if ctx.get("noticias") else ""}
+{('<div class="sec" id="financas"><div class="h">Finanças</div>' + "".join(f'<div class="item">{l}</div>' for l in ctx.get("financas", [])) + '</div>') if ctx.get("financas") else ""}
+<div class="sec"><div class="h">Fé</div>{"".join(f'<div class="item">{x}</div>' for x in ctx.get("fe", []))}</div>
 <div class="sec"><div class="h">Meditação do dia · Frei Gilson</div>
 <div class="item"><a href="{A(ctx["meditacao"]["url"])}">{E(ctx["meditacao"]["titulo"])}</a></div></div>
-<div class="sec"><div class="h">Treino do dia — {E(ctx["treino"]["nome"])}</div>
+<div class="sec" id="treino"><div class="h">Treino do dia — {E(ctx["treino"]["nome"])}</div>
 {ctx["mapa"]}<div class="grid">{ex_cards}</div></div>
-<div class="sec"><div class="h">Alimentação do dia</div>
+<div class="sec" id="dieta"><div class="h">Alimentação do dia</div>
 <div class="meals">{_refeicoes_html(ctx["dieta"])}</div></div>
 <footer>Atualizado automaticamente todo dia às 05h30 (America/Sao_Paulo).<br>Fontes: {_fontes_txt(ctx)}</footer>
 </div></body></html>'''
 
 
 def telegram_html(ctx):
-    """Versão compacta (<b>,<i>,<a>)."""
-    he = A
-    linhas = []
-    linhas.append("🌱 <b>Bom dia, Daniel!</b>")
-    linhas.append(E(data_extenso()) + " — " + E(ctx["headline_curta"]))
-    linhas.append("")
-    linhas.append("✅ <b>Ações a serem feitas</b>")
-    if ctx["precisa_txt"]:
-        linhas += ctx["precisa_txt"]
-    else:
-        linhas.append("Nada pendente hoje.")
-    if ctx.get("financas"):
-        linhas.append("")
-        linhas.append("💰 <b>Finanças</b>")
-        linhas += ctx["financas"]
-    linhas.append("")
-    linhas.append("🙏 <b>Meditação do dia</b>")
-    linhas.append(f'<a href="{he(ctx["meditacao"]["url"])}">{E(ctx["meditacao"]["titulo"])}</a>')
-    linhas.append("")
-    linhas.append(f'🏋️ <b>Treino — {E(ctx["treino"]["nome"])}</b>')
-    linhas.append(" · ".join(f'{E(n)} {E(sr)}' for n, sr, _, _ in ctx["treino"]["ex"]))
-    linhas.append("")
-    linhas.append("🍽️ <b>Alimentação de hoje</b>")
+    """Mensagem curta e escaneável: topo em 10 segundos, detalhes recolhidos (<blockquote expandable>)."""
+    L = []
+    L.append(f'☀️ <b>Bom dia, Daniel!</b> · {E(ctx["cabecalho"])}')
+    if ctx["alertas"]:
+        L.append("⚠️ " + E(" · ".join(ctx["alertas"])))
+    L += ["", "<b>⚡ Em 10 segundos</b>"] + [f"• {x}" for x in ctx["dez"]]
+
+    if ctx["acoes"]:
+        L += ["", "<b>✅ Ações</b>"] + [f"{i}. {t}" for i, t in enumerate(ctx["acoes"], 1)]
+
+    if ctx["financas"]:
+        L += ["", "<b>💰 Finanças</b>"] + ctx["financas"]
+
+    if ctx["mercado"]:
+        L += ["", "<b>📊 Mercado</b>", "<pre>" + E(chr(10).join(ctx["mercado"])) + "</pre>"]
+
+    if ctx["noticias"]:
+        L += ["", "<b>📰 Manchetes</b>"]
+        for n in ctx["noticias"]:
+            fonte = f' <i>({E(n["fonte"])})</i>' if n["fonte"] else ""
+            L.append(f'• <b>{E(n["tema"])}:</b> <a href="{A(n["link"])}">{E(n["titulo"])}</a>{fonte}')
+
+    if ctx["emails"]:
+        L += ["", "<b>📧 E-mails para ler</b>"]
+        L += [f'• {E(e["de"])} ({E(e["conta"])}): {E(e["assunto"])}' for e in ctx["emails"]]
+
+    L += ["", "<b>🙏 Fé</b>"] + ctx["fe"]
+    L.append(f'<a href="{A(ctx["meditacao"]["url"])}">▶ {E(ctx["meditacao"]["titulo"])}</a>')
+
+    t = ctx["treino"]
+    L += ["", f'<blockquote expandable><b>🏋️ {E(t["nome"])}</b> · {E(t["dur"])}']
+    L += [f"{i}. {E(n)} — {E(sr)}" for i, (n, sr, _, _) in enumerate(t["ex"], 1)]
+    L[-1] += "</blockquote>"
+
+    L.append(f'<blockquote expandable><b>🍽️ Dieta</b> · {E(ctx["dieta_destaque"])}')
     for chave, nome in _REFEICOES:
-        linhas.append(f'<b>{E(nome)}:</b> ' + " + ".join(E(it) for it in ctx["dieta"][chave]))
-    if ctx.get("spotify"):
-        sp = ctx["spotify"]
-        if sp.get("podcast"):
-            linhas += ["", "🎧 <b>Podcast do dia</b>",
-                       f'<a href="{he(sp["podcast"]["url"])}">{E(sp["podcast"]["titulo"])}</a> · ~{sp["podcast"]["min"]} min']
-    linhas += ["", f'<i>Fontes: {_fontes_txt(ctx)}</i>']
-    return _cortar_seguro(linhas)
+        L.append(f'<b>{E(nome)}:</b> ' + " + ".join(E(it) for it in ctx["dieta"][chave]))
+    L[-1] += "</blockquote>"
+
+    sp = ctx.get("spotify") or {}
+    if sp.get("podcast"):
+        p = sp["podcast"]
+        L.append(f'🎧 <a href="{A(p["url"])}">{E(p["titulo"])}</a> · {p["min"]} min')
+
+    L += ["", f'<i>Fontes: {_fontes_txt(ctx)}</i>']
+    return _cortar_seguro(L)
 
 
 def _cortar_seguro(linhas, limite=4096):
     """Telegram recusa mensagem acima de 4096 caracteres. Corta por linha inteira
     (nunca no meio de uma tag), pra não gerar HTML quebrado."""
+    import re
+    # O limite vale para o texto visível (URLs dos links não contam).
+    visivel = lambda t: len(html.unescape(re.sub(r"<[^>]+>", "", t)))
     texto = "\n".join(linhas)
-    if len(texto) <= limite:
+    if visivel(texto) <= limite:
         return texto
     aviso = "\n\n… (resumo truncado, confira a página pro conteúdo completo)"
     mantidas = []
     total = len(aviso)
     for linha in linhas:
-        if total + len(linha) + 1 > limite:
+        if total + visivel(linha) + 1 > limite:
             break
         mantidas.append(linha)
-        total += len(linha) + 1
+        total += visivel(linha) + 1
     return "\n".join(mantidas) + aviso

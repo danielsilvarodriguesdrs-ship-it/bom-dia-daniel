@@ -6,6 +6,11 @@ on:
     # Este schedule é só reserva — o GitHub costuma atrasar horas.
     - cron: "28 8 * * *"       # 08:28 UTC = 05:28 America/Sao_Paulo
   workflow_dispatch:
+    inputs:
+      forcar:
+        description: "Enviar mesmo que o resumo de hoje já tenha saído (teste)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -48,9 +53,11 @@ jobs:
 
       - name: Verificar se o resumo de hoje já foi enviado
         id: trava
-        if: github.event_name == 'schedule'
+        # Vale para o schedule e para o cron-job.org (que pode disparar 2x); testes usam forcar=true.
+        if: ${{ !inputs.forcar }}
         run: |
-          if [ "$(git log -1 --format=%s)" = "resumo matinal $(date +%F)" ]; then
+          git fetch -q origin main
+          if git log origin/main --since="$(date +%F) 00:00" --format=%s | grep -qx "resumo matinal $(date +%F)"; then
             echo "Resumo de hoje já enviado — encerrando sem duplicar."
             echo "enviado=1" >> "$GITHUB_OUTPUT"
           fi
@@ -64,6 +71,7 @@ jobs:
         run: |
           git config user.name  "bom-dia-daniel-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add docs/index.html
+          git add docs/index.html state/
           git commit -m "resumo matinal $(date +%F)" || echo "sem mudanças"
+          git pull --rebase -q origin main
           git push

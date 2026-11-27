@@ -13,7 +13,7 @@ def _sem_tags(texto_html):
             .replace("&quot;", '"').replace("&#x27;", "'").replace("&amp;", "&"))
 
 
-def enviar(texto_html):
+def enviar(texto_html, botoes=None):
     """Envia a mensagem em HTML. Se o Telegram rejeitar (tag/entidade malformada,
     por exemplo por causa de um caractere inesperado em algum dado dinâmico),
     reenvia como texto puro em vez de deixar o dia inteiro sem aviso nenhum."""
@@ -22,6 +22,7 @@ def enviar(texto_html):
         "text": texto_html,
         "parse_mode": "HTML",
         "disable_web_page_preview": True,
+        **({"reply_markup": {"inline_keyboard": botoes}} if botoes else {}),
     }, timeout=20)
 
     if r.status_code == 400:
