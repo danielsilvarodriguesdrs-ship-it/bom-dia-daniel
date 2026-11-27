@@ -15,6 +15,8 @@ color:var(--ink);background:var(--bg);line-height:1.5}
 .pasto{margin-top:22px;line-height:0}
 .h{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
 .sec{margin-top:34px} .item{margin-top:12px;font-size:15px;color:var(--soft)}
+.pre{font-family:ui-monospace,Consolas,monospace;font-size:14px;margin-top:12px;background:#fff;border:1px solid var(--hair);border-radius:12px;padding:12px 14px;overflow-x:auto}
+.src{font-size:12px;color:var(--soft)}
 .calm{margin-top:12px;font-size:15px;color:var(--soft)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:20px}
 .ex{border:1px solid var(--hair);border-radius:14px;padding:12px;background:#fff;
@@ -34,7 +36,7 @@ footer{margin-top:48px;padding-bottom:36px;font-size:12px;color:var(--soft)}
 <div class="daydate">Quinta-feira, 26 de novembro de 2026</div>
 <h1 class="headline">Bom dia, Daniel!</h1>
 <p class="subtitle">Abaixo estão suas atividades de hoje e as ações a serem desenvolvidas.</p>
-<p class="daysummary">Agenda livre hoje, Daniel — dia aberto pra tocar no seu ritmo.</p>
+<p class="daysummary">⚠️ Ibovespa ▲ 6,1%</p>
 </div><div class="pasto"><svg viewBox="0 0 840 220" width="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
 <circle cx="700" cy="56" r="30" fill="#C6613F" opacity="0.9"/>
 <path d="M0 150 C 90 120 160 168 260 140 S 430 108 520 142 S 700 118 840 148 L840 220 L0 220 Z"
@@ -45,11 +47,20 @@ footer{margin-top:48px;padding-bottom:36px;font-size:12px;color:var(--soft)}
       fill="#3E6B3A"/>
 </svg></div></div>
 <div class="wrap">
-<div class="sec"><div class="h">Ações a serem feitas</div><div class="item"><b>1.</b> 🔴 Fatura Nubank — R$ 226,19 (venceu há 42 dias)</div><div class="item"><b>2.</b> 🔴 Fatura Sicredi — R$ 849,54 (venceu há 42 dias)</div><div class="item"><b>3.</b> 🔴 Fatura Inter — R$ 220,54 (venceu há 42 dias)</div><div class="item"><b>4.</b> 🔴 Fatura Bradesco — R$ 7.183,15 (venceu há 40 dias)</div><div class="item"><b>5.</b> 🔴 Fatura Nubank — R$ 218,44 (venceu há 11 dias)</div><div class="item"><b>6.</b> 🔴 Fatura Sicredi — R$ 577,90 (venceu há 11 dias)</div><div class="item"><b>7.</b> 🔴 Fatura Bradesco — R$ 500,81 (venceu há 9 dias)</div><div class="item"><b>8.</b> E-mail de Google &lt;no-reply@accounts.google.com&gt; (pessoal) — "Alerta de segurança para danielcampofort@gmail.com"</div><div class="item"><b>9.</b> E-mail de Google &lt;no-reply@accounts.google.com&gt; (pessoal) — "Alerta de segurança"</div><div class="item"><b>10.</b> E-mail de Google &lt;no-reply@accounts.google.com&gt; (pessoal) — "Verificação em duas etapas ativada"</div><div class="item"><b>11.</b> E-mail de &quot;Buscapé&quot; &lt;buscape@ofertas.buscape.com.br&gt; (pessoal) — "Está R$ 230.51 mais barato! 🤑"</div><div class="item"><b>12.</b> E-mail de danielsilvarodriguesdrs-ship-it &lt;notifications@github.com&gt; (pessoal) — "[danielsilvarodriguesdrs-ship-it/bom-dia-daniel] Run failed: bom-dia-daniel - main (26ece6c)"</div><div class="item"><b>13.</b> E-mail de Google &lt;no-reply@accounts.google.com&gt; (CampoFort) — "Alerta de segurança"</div><div class="item"><b>14.</b> E-mail de Google &lt;no-reply@accounts.google.com&gt; (CampoFort) — "Alerta de segurança para danielsilva.rodrigues.drs@gmail.com"</div><div class="item"><b>15.</b> E-mail de Google &lt;no-reply@accounts.google.com&gt; (CampoFort) — "Alerta de segurança para danielsilva.rodrigues.drs@gmail.com"</div></div>
-<div class="sec"><div class="h">Finanças</div><div class="item">Gasto do mês: <b>R$ 304,16</b></div><div class="item">Ontem: nenhum gasto lançado</div><div class="item">Saldo em contas: R$ 0,00</div><div class="item">Meta Reserva de Emergência: ░░░░░░░░░░ 0%</div><div class="item">Meta Viagem: ░░░░░░░░░░ 0%</div></div>
+<div class="sec"><div class="h">Em 10 segundos</div><div class="item">🏋️ Descanso / atividade leve (20-30 min)</div><div class="item">💳 7 vencida(s) sem baixa no app (R$ 9.776,57)</div><div class="item">🌦️ 22°→31° · chuva 94% · janela seca 6h–13h</div></div>
+<div class="sec"><div class="h">Ações</div><div class="item"><b>1.</b> 🔴 7 conta(s)/fatura(s) vencida(s) sem baixa no app — R$ 9.776,57 <i>(se já pagou, marque como paga no Finance Control)</i></div></div>
+<div class="sec" id="mercado"><div class="h">Mercado</div><pre class="pre">Ibovespa   176.800 pts ▲ 6,1%
+Boi @        R$ 396,70   —  
+Soja sc      R$ 169,18   —  
+Milho sc      R$ 68,00   —  
+Selic 13,75% · CDI 13,65%
+IPCA 12m 4,63% · real ~9,0%</pre></div>
+<div class="sec" id="noticias"><div class="h">Manchetes</div><div class="item"><b>Agro:</b> <a href="https://g1.globo.com/economia/agronegocios/noticia/2026/11/26/governo-lula-acusa-franca-de-disseminar-desinformacao.ghtml">Brasil rebate Macron após fala sobre carne &#x27;dopada&#x27; e acusa França de protecionismo</a> <span class="src">g1</span></div><div class="item"><b>Agro:</b> <a href="https://globorural.globo.com/previsao-do-tempo/noticia/2026/11/sexta-feira-27-tera-pancadas-de-chuva-em-grande-parte-do-brasil.ghtml">Sexta-feira (27) terá pancadas de chuva em grande parte do Brasil</a> <span class="src">Globo Rural</span></div><div class="item"><b>Economia:</b> <a href="https://g1.globo.com/economia/noticia/2026/11/26/um-pais-caminha-bem-quando-conduzido-com-seriedade-e-etica-diz-durigan-apos-anuncio-de-trabuco-na-fazenda.ghtml">&#x27;Um país caminha bem quando conduzido com seriedade e ética&#x27;, diz Durigan após anuncio de Trabuco na Fazenda</a> <span class="src">g1</span></div><div class="item"><b>Tecnologia:</b> <a href="https://g1.globo.com/tecnologia/ciberseguranca/serasa/noticia/2026/11/26/chargeback-e-falsos-positivos-como-reduzir-fraude-sem-bloquear-bons-clientes.ghtml">Chargeback e falsos positivos: como reduzir fraude sem bloquear bons clientes</a> <span class="src">g1</span></div><div class="item"><b>Região:</b> <a href="https://news.google.com/rss/articles/CBMijgFBVV95cUxON1lDUm9DcVo5Rm1LTHNTUWFEaGtDLUhnemFJM2NFYlhseDJ6aWlTRWNwUnFHaWpTN0VpUUdNV19SU3hESjZoMW4wQmk3OV9aUUIwOHhodk5hRzAxZkZmdkQ0eWpMWVMzWENLLTVXSTFCXzA0NGdzRTExelNHMGZjWTlLcmQ4N05SRFNnaWhR0gGTAUFVX3lxTFBpZ2U1LU5uSVlPcDB3c3B4eGx2RFhRa1A4SkJuYVM1WFo4WTVWNll4UmdXMlVuWmFBUTNOVEhqdWt2MHVJbi1vcU8zR2xyQkxzUEFnZ3U5X2dxTHhtc3pEMGpHblpTMzRxZ1E0MHZfak94X2JVcUc5bFZMZGhwdlhOQy0yZWxieWRGdjRFN2tqckdGRQ?oc=5">Concurso São Luís de Montes Belos GO: inscrições até 18/12</a> <span class="src">Estratégia Concursos</span></div></div>
+<div class="sec" id="financas"><div class="h">Finanças</div><div class="item">Gasto do mês: <b>R$ 304,16</b></div><div class="item">Meta Veículo: ▓▓▓▓▓░░░░░ 48%</div></div>
+<div class="sec"><div class="h">Fé</div><div class="item">5ª feira da 34ª Semana do Tempo Comum · cor verde · Evangelho Lc 21,20-28</div><div class="item">Santo do dia: S. Sirício, papa</div></div>
 <div class="sec"><div class="h">Meditação do dia · Frei Gilson</div>
 <div class="item"><a href="https://www.youtube.com/watch?v=F6eb88Qmqb4">Santo Rosário | 7 Dias de Oração 2026 | 03:40 | 26/11 | 3º Dia | Live Ao vivo</a></div></div>
-<div class="sec"><div class="h">Treino do dia — Descanso / atividade leve</div>
+<div class="sec" id="treino"><div class="h">Treino do dia — Descanso / atividade leve</div>
 <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" aria-label="Mapa muscular do dia"><text x="63" y="14" font-size="11" fill="#6B6A63" text-anchor="middle" font-family="-apple-system,sans-serif">Frente</text><text x="210" y="14" font-size="11" fill="#6B6A63" text-anchor="middle" font-family="-apple-system,sans-serif">Costas</text>
 <circle cx="63" cy="34" r="9" fill="none" stroke="#2E2C27" stroke-width="2"/>
 <path d="M48 46 Q63 42 78 46 L80 92
@@ -77,7 +88,7 @@ footer{margin-top:48px;padding-bottom:36px;font-size:12px;color:var(--soft)}
 <path d="M55 42 Q70 70 95 78" fill="none" stroke="#C6613F" stroke-width="4.5" stroke-linecap="round"/>
 <path d="M55 42 L50 80" stroke="#2E2C27" stroke-width="2.6"/>
 <path d="M95 78 L108 74" stroke="#2E2C27" stroke-width="2.6" stroke-linecap="round"/></svg></div><div class="ex-name"><span>3</span> Caminhada leve</div><div class="ex-sr">15-20 min</div><div class="ex-mus">Recuperação</div></div></div></div>
-<div class="sec"><div class="h">Alimentação do dia</div>
+<div class="sec" id="dieta"><div class="h">Alimentação do dia</div>
 <div class="meals"><div class="meal"><div class="meal-name">Café da manhã</div><ul><li>Ovos: 2-3 unidades (100-150 g)</li><li>Tapioca: 60-80 g</li><li>Laranja: 80-120 g</li><li>Aveia: 20-30 g</li><li>Leite: 200-250 ml</li></ul></div><div class="meal"><div class="meal-name">Lanche</div><ul><li>Iogurte natural: 170-200 g</li><li>Manga: 100-150 g</li><li>Aveia: 20-30 g</li></ul></div><div class="meal"><div class="meal-name">Almoço</div><ul><li>Mandioca cozida: 200-250 g</li><li>Feijão cozido: 100-150 g</li><li>Ovos (3-4 unidades): 100-150 g</li><li>Legumes: 100-150 g</li><li>Verduras: à vontade</li><li>Azeite: um fio para complementar</li></ul></div><div class="meal"><div class="meal-name">Pré-treino</div><ul><li>Banana: 100-120 g</li><li>Aveia: 30-40 g</li><li>Iogurte: 170 g</li></ul></div><div class="meal"><div class="meal-name">Pós-treino</div><ul><li>Arroz: 150-200 g</li><li>Feijão: 100-150 g</li><li>Ovos (3-4 unidades): 100-150 g</li><li>Legumes/verduras: 100-150 g</li><li>(se a refeição completa ainda estiver distante, o whey já utilizado pode compor a alimentação do dia, sem precisar ser imediato)</li></ul></div><div class="meal"><div class="meal-name">Jantar</div><ul><li>Arroz cozido: 150-200 g</li><li>Feijão: 100-150 g</li><li>Ovos (3-4 unidades): 100-150 g</li><li>Legumes/verduras: 100-150 g</li></ul></div><div class="meal"><div class="meal-name">Ceia</div><ul><li>Leite (200-250 ml) ou iogurte (170-200 g), com fruta se desejar</li></ul></div></div></div>
-<footer>Atualizado automaticamente todo dia às 05h30 (America/Sao_Paulo).<br>Fontes: ✅ Finanças · ✅ Agenda pessoal · ✅ Agenda CampoFort · ✅ Gmail pessoal · ✅ Gmail CampoFort</footer>
+<footer>Atualizado automaticamente todo dia às 05h30 (America/Sao_Paulo).<br>Fontes: ✅ Finanças · ✅ Clima · ✅ Liturgia · ✅ Notícias · ✅ Agenda pessoal · ✅ Agenda CampoFort · ✅ Gmail pessoal · ✅ Gmail CampoFort · ⚠️ Mercado (câmbio: HTTPError em economia.awesomeapi.com.br)</footer>
 </div></body></html>
